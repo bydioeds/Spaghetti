@@ -219,21 +219,36 @@ function add_validate_button() {
         });
         mobygames.alternate_titles = alternate_titles.join(", ");
         
-        var date_array = $("dt:contains('Released')").next().text().trim().split("on")[0].trim()
+        var date_array = $("dt:contains('Released')").next().text().trim().split("on")[0].trim().match(/[0-9]{4}/)
         mobygames.year = date_array
         
         var tags_array = []
 
         $("dt:contains('Genre')").next().find("a").each((o, obj) => {
-            tags_array.push($(obj).text())
+            let arr = $(obj).text().split("/")
+
+            arr.forEach(t => {
+                tags_array.push(t)
+            })
+
         })
 
         $("dt:contains('Setting')").next().find("a").each((o, obj) => {
-            tags_array.push($(obj).text())
+            let arr = $(obj).text().split("/")
+
+            arr.forEach(t => {
+                tags_array.push(t)
+            })
+
         })
 
         $("dt:contains('Gameplay')").next().find("a").each((o, obj) => {
-            tags_array.push($(obj).text())
+             let arr = $(obj).text().split("/")
+
+            arr.forEach(t => {
+                tags_array.push(t)
+            })
+
         })
 
         //$("#coreGameGenre div:contains('Genre')").next().text().split(/[\/,]/);

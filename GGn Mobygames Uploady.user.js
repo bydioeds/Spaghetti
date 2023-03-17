@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         GGn Mobygames Uploady
 // @namespace    https://orbitalzero.ovh/scripts
-// @version      0.30
+// @version      0.31
 // @include      https://gazellegames.net/upload.php
 // @include      https://gazellegames.net/torrents.php?action=editgroup*
 // @include      https://www.mobygames.com/*
@@ -156,23 +156,26 @@ function get_cover() {
     });
 }
 
-function get_screenshots() {
+function get_screenshots(platformSlug) {
+    console.log(document.URL+"/screenshots/" + platformSlug)
     return new Promise( function (resolve, reject) {
         GM_xmlhttpRequest({
             method: "GET",
-            url: document.URL+"/screenshots",
+            url: document.URL+"/screenshots/" + platformSlug,
             onload: function(data) {
                 let nbr_screenshots = 0;
                 resolve(Promise.all($(data.responseText).find("#main .img-holder a").map( function() {
                     let image_url = $(this).attr("href");
-                    if ($(this).parent().find("figcaption>.text-muted").text().indexOf("Title screen") == -1 && nbr_screenshots < 16) {
+
+                    if (image_url.includes("screenshots") && nbr_screenshots < 16) {
                         nbr_screenshots++;
                         return new Promise (function (resolve, reject) {
                             GM_xmlhttpRequest({
                                 method: "GET",
                                 url: image_url,
                                 onload: function(data) {
-                                    var screen = $(data.responseText).find(".img-fluid").attr("src");
+                                    console.log(image_url)
+                                    var screen = $(data.responseText).find("figure img").attr("src");
                                     if (screen.indexOf("http") == -1) screen = "https://" + window.location.hostname + screen;
                                     resolve(screen);
                                 },
@@ -191,10 +194,7 @@ function get_screenshots() {
     });
 }
 
-function add_validate_button() {
-	if (typeof console != "undefined" && typeof console.log != "undefined") console.log("Adding button to window");
-	$("body").prepend('<input type="button" id="save_link" value="Save link for GGn"/>');
-	$("#save_link").click( function() {
+function validate(platformSlug){
 		var mobygames = JSON.parse(GM_getValue("mobygames") || "{}");
         if (typeof mobygames == "string") mobygames = JSON.parse(mobygames);   //Fix for a weird bug happening on http://www.arkane-studios.com/uk/arx.php, transforming the array of strings into a string
 
@@ -203,25 +203,28 @@ function add_validate_button() {
         }).catch(function (err) {
             throw err;
         });
-        
-        get_screenshots().then(function(screenshots) {
+
+        get_screenshots(platformSlug).then(function(screenshots) {
+            if (screenshots.length == 0){
+                alert("There's no screenshots for platorm: "+ platformSlug)
+            }
             mobygames.screenshots = screenshots;
             GM_setValue("mobygames", JSON.stringify(mobygames));
         }).catch(function (err) {
             throw err;
         });
-        
+
         mobygames.description = html2bb($("#description-text").html().replace(/[\n]*/g, "").replace(/.*<h2>Description<\/h2>/g, "").replace(/<div.*/g, "").replace(/< *br *>/g, "\n"));//YOU SHOULD NOT DO THIS AT HOME
-        
+
         var alternate_titles = [];
         $(".text-sm.text-normal.text-muted:contains('aka')").find("span u").each( function() {
             alternate_titles.push($(this).text().replace(/[^"]*"([^"]*)".*/g, "$1"));
         });
         mobygames.alternate_titles = alternate_titles.join(", ");
-        
+
         var date_array = $("dt:contains('Released')").next().text().trim().split("on")[0].trim().match(/[0-9]{4}/)
         mobygames.year = date_array
-        
+
         var tags_array = []
 
         $("dt:contains('Genre')").next().find("a").each((o, obj) => {
@@ -265,11 +268,11 @@ function add_validate_button() {
             }
         });
         mobygames.tags = trimmed_tags_array.join(", ");
-        
+
         mobygames.title = $("h1").text().trim();
-        
+
         mobygames.platform = "";
-        var platform = window.location.pathname.replace(/\/game\/([^\/]+)\/.*/, "$1");
+        var platform = platformSlug
         switch (platform) {
             case "macintosh":
                 mobygames.platform = "Mac";
@@ -338,6 +341,9 @@ function add_validate_button() {
             case "ps3":
                 mobygames.platform = "PlayStation 3";
                 break;
+            case "playstation-4":
+                mobygames.platform = "PlayStation 4";
+                break
             case "psp":
                 mobygames.platform = "PlayStation Portable";
                 break;
@@ -444,19 +450,58 @@ function add_validate_button() {
                 mobygames.platform = "Watara Supervision";
                 break;
             default:
-                //mobygames.platform = "Retro - Other";
+                mobygames.platform = "Retro - Other";
                 break;
         }
-        
+
         alert("Uploady done !");
-	});
 }
 
-function button_css () {
-	return "input#save_link {\
+function add_validate_button() {
+	if (typeof console != "undefined" && typeof console.log != "undefined") console.log("Adding button to window");
+    // Get all platforms available
+    let platforms = []
+    $("dt:contains('Releases by Date')").next().find("ul li").each((i, platform) => {
+        let platformAnchor = $(platform).find("span a")
+        let platformUrl = $(platformAnchor).attr("href")
+        let platformSlug = platformUrl.replace(/\/game\/platform:(.+)\//, "$1")
+
+        let platformJson = {
+
+            name: $(platformAnchor).text(),
+            slug: platformSlug
+        }
+
+        platforms.push(
+            platformJson
+        )
+    })
+
+    // Add a button per platform to the page
+    platforms.forEach((platform, i) => {
+        console.log(platform, "|", i)
+        $("body").prepend('<input type="button" style="top:' + i * 50 +'px" platform="' + platform.slug + '" class="platform" value="'+ platform.name + '"/>')
+    })
+
+    // If there's only one platform we add a default button
+    if(platforms.length == 0){
+        let platformAnchor = $("dt:contains('Released')").next().find("a:last")
+        let platformUrl = $(platformAnchor).attr("href")
+        let platformSlug = platformUrl.replace(/\/game\/platform:(.+)\//, "$1")
+
+        $("body").prepend('<input type="button" style="top:' + 0 +'px" platform="' + platformSlug + '" class="platform" value="'+ platformSlug + '"/>')
+    }
+
+    // Adding click event to every button
+	$(".platform").click( function() {
+        validate($(this).attr("platform"))
+    });
+}
+
+function button_css (index) {
+	return "input.platform {\
                 position: fixed;\
                 left: 0;\
-                top: 0;\
                 z-index: 999999;\
                 cursor: pointer;\
                 height: auto;\

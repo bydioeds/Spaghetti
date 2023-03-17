@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         GGn Mobygames Uploady
 // @namespace    https://orbitalzero.ovh/scripts
-// @version      0.31
+// @version      0.32
 // @include      https://gazellegames.net/upload.php
 // @include      https://gazellegames.net/torrents.php?action=editgroup*
 // @include      https://www.mobygames.com/*
@@ -53,8 +53,7 @@ try {
 }
 
 function init() {
-
-	var mobygames = JSON.parse(GM_getValue("mobygames") || "{}");
+    var mobygames = JSON.parse(GM_getValue("mobygames") || "{}");
 	GM_setValue("mobygames", JSON.stringify(mobygames));
 
 	if (window.location.hostname == "gazellegames.net") {
@@ -147,12 +146,8 @@ function get_covers(platformSlug){
             url: document.URL+"/covers/" + platformSlug,
             onload: (data) => {
 
-                resolve(
-                    Promise.all(
-                         $(data.responseText).find("figcaption:contains('Front')").map((i, fig) => {
-                             let imageUrl = $(fig).prev().attr("href")
-
-                             return new Promise(
+                let imageUrl = $(data.responseText).find("figcaption:contains('Front'):first").prev().attr("href")
+                resolve(new Promise(
                                  (resolve, reject) => {
                                      GM_xmlhttpRequest({
                                          method: "GET",
@@ -162,16 +157,11 @@ function get_covers(platformSlug){
                                              resolve(image)
                                          },
                                          onerror: (error) => {
-                                             throw error
+                                             resolve(false)
                                          }
                                      })
                                  }
-                             )
-                         })
-                    )
-                )
-
-
+                             ))
             },
             onerror: (error) => {
                throw error;
@@ -242,7 +232,7 @@ function validate(platformSlug){
         if (typeof mobygames == "string") mobygames = JSON.parse(mobygames);//Fix for a weird bug happening on http://www.arkane-studios.com/uk/arx.php, transforming the array of strings into a string
 
         get_covers(platformSlug).then((covers) => {
-            if (covers.length == 0) {
+            if (!covers) {
                 alert("There's no covers for platform: " + platformSlug + ", using default cover.")
                 get_cover().then(function (cover) {
                     mobygames.cover = cover;
@@ -250,7 +240,7 @@ function validate(platformSlug){
                     throw err;
                 });
             }else{
-                mobygames.cover = covers[0];
+                mobygames.cover = covers;
             }
         }).catch((err) => {
             throw err

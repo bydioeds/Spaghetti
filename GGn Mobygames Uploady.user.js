@@ -53,6 +53,7 @@ try {
 }
 
 function init() {
+
 	var mobygames = JSON.parse(GM_getValue("mobygames") || "{}");
 	GM_setValue("mobygames", JSON.stringify(mobygames));
 
@@ -138,6 +139,48 @@ function add_search_buttons_alt() {
 	});
 }
 
+function get_covers(platformSlug){
+    return new Promise( (resolve, reject) => {
+
+        GM_xmlhttpRequest({
+            method: "GET",
+            url: document.URL+"/covers/" + platformSlug,
+            onload: (data) => {
+
+                resolve(
+                    Promise.all(
+                         $(data.responseText).find("figcaption:contains('Front')").map((i, fig) => {
+                             let imageUrl = $(fig).prev().attr("href")
+
+                             return new Promise(
+                                 (resolve, reject) => {
+                                     GM_xmlhttpRequest({
+                                         method: "GET",
+                                         url: imageUrl,
+                                         onload: (data) => {
+                                             let image = $(data.responseText).find("figure img").attr("src");
+                                             resolve(image)
+                                         },
+                                         onerror: (error) => {
+                                             throw error
+                                         }
+                                     })
+                                 }
+                             )
+                         })
+                    )
+                )
+
+
+            },
+            onerror: (error) => {
+               throw error;
+            }
+        })
+
+    })
+}
+
 function get_cover() {
     return new Promise( function (resolve, reject) {
                        GM_xmlhttpRequest({
@@ -157,7 +200,7 @@ function get_cover() {
 }
 
 function get_screenshots(platformSlug) {
-    console.log(document.URL+"/screenshots/" + platformSlug)
+    
     return new Promise( function (resolve, reject) {
         GM_xmlhttpRequest({
             method: "GET",
@@ -196,13 +239,23 @@ function get_screenshots(platformSlug) {
 
 function validate(platformSlug){
 		var mobygames = JSON.parse(GM_getValue("mobygames") || "{}");
-        if (typeof mobygames == "string") mobygames = JSON.parse(mobygames);   //Fix for a weird bug happening on http://www.arkane-studios.com/uk/arx.php, transforming the array of strings into a string
+        if (typeof mobygames == "string") mobygames = JSON.parse(mobygames);//Fix for a weird bug happening on http://www.arkane-studios.com/uk/arx.php, transforming the array of strings into a string
 
-        get_cover().then(function (cover) {
-            mobygames.cover = cover;
-        }).catch(function (err) {
-            throw err;
-        });
+        get_covers(platformSlug).then((covers) => {
+            if (covers.length == 0) {
+                alert("There's no covers for platform: " + platformSlug + ", using default cover.")
+                get_cover().then(function (cover) {
+                    mobygames.cover = cover;
+                }).catch(function (err) {
+                    throw err;
+                });
+            }else{
+                mobygames.cover = covers[0];
+            }
+        }).catch((err) => {
+            throw err
+        })
+
 
         get_screenshots(platformSlug).then(function(screenshots) {
             if (screenshots.length == 0){

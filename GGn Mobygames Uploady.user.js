@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         GGn Mobygames Uploady
 // @namespace    https://orbitalzero.ovh/scripts
-// @version      0.33
+// @version      0.34
 // @include      https://gazellegames.net/upload.php
 // @include      https://gazellegames.net/torrents.php?action=editgroup*
 // @include      https://www.mobygames.com/*
@@ -54,13 +54,16 @@ try {
 
 function init() {
     var mobygames = JSON.parse(GM_getValue("mobygames") || "{}");
+
 	GM_setValue("mobygames", JSON.stringify(mobygames));
 
 	if (window.location.hostname == "gazellegames.net") {
         if (window.location.pathname == '/upload.php') {
+            GM_setValue("showButtons", false)
 			add_search_buttons();
 		}
 		else if (window.location.pathname == '/torrents.php' && /action=editgroup/.test(window.location.search)) {
+            GM_setValue("showButtons", false)
 			add_search_buttons_alt();
         }
 	}
@@ -81,6 +84,7 @@ function add_search_buttons() {
 		var mobygames = {};
 
 		GM_setValue("mobygames", JSON.stringify(mobygames));
+        GM_setValue("showButtons", true)
     });
 
 	//need to add a button to fill the inputs and stop gathering links
@@ -520,24 +524,29 @@ function add_validate_button() {
         )
     })
 
-    // Add a button per platform to the page
-    platforms.forEach((platform, i) => {
-        console.log(platform, "|", i)
-        $("body").prepend('<input type="button" style="top:' + i * 50 +'px" platform="' + platform.slug + '" class="platform" value="'+ platform.name + '"/>')
-    })
+    let showButtons = GM_getValue("showButtons")
 
-    // If there's only one platform we add a default button
-    if(platforms.length == 0){
-        let platformAnchor = $("dt:contains('Released')").next().find("a:last")
-        let platformUrl = $(platformAnchor).attr("href")
-        let platformSlug = platformUrl.replace(/\/game\/platform:(.+)\//, "$1")
+    if (showButtons){
+        // Add a button per platform to the page
+        platforms.forEach((platform, i) => {
+            console.log(platform, "|", i)
+            $("body").prepend('<input type="button" style="top:' + i * 50 +'px" platform="' + platform.slug + '" class="platform" value="'+ platform.name + '"/>')
+        })
 
-        $("body").prepend('<input type="button" style="top:' + 0 +'px" platform="' + platformSlug + '" class="platform" value="'+ platformSlug + '"/>')
+        // If there's only one platform we add a default button
+        if(platforms.length == 0){
+            let platformAnchor = $("dt:contains('Released')").next().find("a:last")
+            let platformUrl = $(platformAnchor).attr("href")
+            let platformSlug = platformUrl.replace(/\/game\/platform:(.+)\//, "$1")
+
+            $("body").prepend('<input type="button" style="top:' + 0 +'px" platform="' + platformSlug + '" class="platform" value="'+ platformSlug + '"/>')
+        }
     }
 
     // Adding click event to every button
 	$(".platform").click( function() {
         validate($(this).attr("platform"))
+        GM_setValue("showButtons", false)
     });
 }
 

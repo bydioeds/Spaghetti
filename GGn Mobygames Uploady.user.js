@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         GGn Mobygames Uploady
 // @namespace    https://orbitalzero.ovh/scripts
-// @version      0.32
+// @version      0.33
 // @include      https://gazellegames.net/upload.php
 // @include      https://gazellegames.net/torrents.php?action=editgroup*
 // @include      https://www.mobygames.com/*

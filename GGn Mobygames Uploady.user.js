@@ -23,10 +23,10 @@ function html2bb(str) {
     str = str.replace(/< *u *>/g, "[u]");
     str = str.replace(/< *\/ *u *>/g, "[/u]");
     str = str.replace(/< *\/ *li *>/g, "");
-    str = str.replace(/< *\/ *p *>/g, "");
+    str = str.replace(/< *\/ *p *>/g, "\n\n");
     str = str.replace(/< * *p *>/g, "");
-    str = str.replace(/< *\/ *em *>/g, "");
-    str = str.replace(/< * *em *>/g, "");
+    str = str.replace(/< *\/ *em *>/g, "[/i]");
+    str = str.replace(/< * *em *>/g, "[i]");
     str = str.replace(/< *li *>/g, "[*]");
     str = str.replace(/< *\/ *ul *>/g, "");
     str = str.replace(/< *ul *class=\\*\"bb_ul\\*\" *>/g, "");
@@ -233,12 +233,12 @@ function validate(platformSlug){
 
         get_covers(platformSlug).then((covers) => {
             if (!covers) {
-                alert("There's no covers for platform: " + platformSlug + ", using default cover.")
-                get_cover().then(function (cover) {
-                    mobygames.cover = cover;
-                }).catch(function (err) {
-                    throw err;
-                });
+                //alert("There's no covers for platform: " + platformSlug + ", using default cover.")
+                //get_cover().then(function (cover) {
+                //    mobygames.cover = cover;
+                //}).catch(function (err) {
+                //    throw err;
+                //});
             }else{
                 mobygames.cover = covers;
             }

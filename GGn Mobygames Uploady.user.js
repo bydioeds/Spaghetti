@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         GGn Mobygames Uploady
 // @namespace    https://orbitalzero.ovh/scripts
-// @version      0.33
+// @version      0.33.1
 // @include      https://gazellegames.net/upload.php
 // @include      https://gazellegames.net/torrents.php?action=editgroup*
 // @include      https://www.mobygames.com/*
@@ -252,7 +252,10 @@ function validate(platformSlug){
                 alert("There's no screenshots for platorm: "+ platformSlug)
             }
             mobygames.screenshots = screenshots;
-            GM_setValue("mobygames", JSON.stringify(mobygames));
+            setTimeout(() => {
+                GM_setValue("mobygames", JSON.stringify(mobygames));
+            }, 1)
+            
         }).catch(function (err) {
             throw err;
         });
@@ -320,6 +323,9 @@ function validate(platformSlug){
             case "macintosh":
                 mobygames.platform = "Mac";
                 break;
+            case "apple2":
+                mobygames.platform = "Apple II"
+                break
             case "iphone":
             case "ipad":
                 mobygames.platform = "iOS";
@@ -507,7 +513,7 @@ function add_validate_button() {
     $("dt:contains('Releases by Date')").next().find("ul li").each((i, platform) => {
         let platformAnchor = $(platform).find("span a")
         let platformUrl = $(platformAnchor).attr("href")
-        let platformSlug = platformUrl.replace(/\/game\/platform:(.+)\//, "$1")
+        let platformSlug = platformUrl.replace(/\/platform\/(.+)\//, "$1")
 
         let platformJson = {
 
@@ -530,7 +536,7 @@ function add_validate_button() {
     if(platforms.length == 0){
         let platformAnchor = $("dt:contains('Released')").next().find("a:last")
         let platformUrl = $(platformAnchor).attr("href")
-        let platformSlug = platformUrl.replace(/\/game\/platform:(.+)\//, "$1")
+        let platformSlug = platformUrl.replace(/\/platform\/(.+)\//, "$1")
 
         $("body").prepend('<input type="button" style="top:' + 0 +'px" platform="' + platformSlug + '" class="platform" value="'+ platformSlug + '"/>')
     }

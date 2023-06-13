@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         GGn Mobygames Uploady
 // @namespace    https://orbitalzero.ovh/scripts
-// @version      0.33.1
+// @version      0.33.2
 // @include      https://gazellegames.net/upload.php
 // @include      https://gazellegames.net/torrents.php?action=editgroup*
 // @include      https://www.mobygames.com/*
@@ -252,9 +252,9 @@ function validate(platformSlug){
                 alert("There's no screenshots for platorm: "+ platformSlug)
             }
             mobygames.screenshots = screenshots;
-            setTimeout(() => {
-                GM_setValue("mobygames", JSON.stringify(mobygames));
-            }, 1)
+        
+            GM_setValue("mobygames", JSON.stringify(mobygames));
+            
             
         }).catch(function (err) {
             throw err;
@@ -330,6 +330,9 @@ function validate(platformSlug){
             case "ipad":
                 mobygames.platform = "iOS";
                 break;
+            case "pippin":
+                mobygames.platform = "Apple Bandai Pippin"
+                break
             case "android":
                 mobygames.platform = "Android";
                 break;
@@ -363,18 +366,27 @@ function validate(platformSlug){
             case "3ds":
                 mobygames.platform = "Nintendo 3DS";
                 break;
+            case "new-nintendo-3ds":
+                mobygames.platform = "New Nintendo 3DS"
+                break
             case "nintendo-ds":
                 mobygames.platform = "Nintendo DS";
                 break;
             case "gamecube":
                 mobygames.platform = "Nintendo GameCube";
                 break;
-            case "nintendo-ds":
-                mobygames.platform = "Nintendo DS";
-                break;
+            case "pokemon-mini":
+                mobygames.platform = "Pokemon Mini"
+                break
             case "snes":
-                mobygames.platform = "Super NES";
+                mobygames.platform = "SNES";
                 break;
+            case "switch":
+                mobygames.platform = "Switch"
+                break
+            case "virtual-boy":
+                mobygames.platform = "Virtual Boy"
+                break
             case "wii":
                 mobygames.platform = "Wii";
                 break;
@@ -411,6 +423,12 @@ function validate(platformSlug){
             case "genesis":
                 mobygames.platform = "Mega Drive";
                 break;
+            case "sega-pico":
+                mobygames.platform = "Pico"
+                break
+            case "sg-1000":
+                mobygames.platform = "SG-1000"
+                break
             case "sega-saturn":
                 mobygames.platform = "Saturn";
                 break;
@@ -447,18 +465,48 @@ function validate(platformSlug){
             case "wonderswan":
                 mobygames.platform = "Bandai WonderSwan";
                 break;
+            case "wonderswan-color":
+                mobygames.platform = "Bandai WonderSwan Color"
+                break
             case "colecovision":
                 mobygames.platform = "Colecovision";
                 break;
             case "c64":
                 mobygames.platform = "Commodore 64";
                 break;
+            case "c128":
+                mobygames.platform = "Commodore 128"
+                break
+            case "amiga-cd32":
+                mobygames.platform = "Amiga CD32"
+                break
             case "amiga":
                 mobygames.platform = "Commodore Amiga";
                 break;
             case "commodore-16-plus4":
                 mobygames.platform = "Commodore Plus-4";
                 break;
+            case "vic-20":
+                mobygames.platform = "Commodore VIC-20"
+                break
+            case "pc98":
+                mobygames.platform = "NEC PC-98"
+                break
+            case "supergrafx":
+                mobygames.platform = "NEC SuperGrafx"
+                break
+            case "game-com":
+                mobygames.platform = "Game.com"
+                break
+            case "gizmondo":
+                mobygames.platform = "Gizmondo"
+                break
+            case "vsmile":
+                mobygames.platform = "V.Smile"
+                break
+            case "creativision":
+                mobygames.platform = "CreatiVision"
+                break
             case "linux":
                 mobygames.platform = "Linux";
                 break;
@@ -498,6 +546,77 @@ function validate(platformSlug){
             case "supervision":
                 mobygames.platform = "Watara Supervision";
                 break;
+            case "casio-loopy":
+                mobygames.platform = "Casio Loopy"
+                break
+            case "casio-pv-1000":
+                mobygames.platform = "Casio PV-1000"
+                break
+            case "arcadia-2001":
+                mobygames.platform = "Emerson Arcadia 2001"
+                break
+            case "adventure-vision":
+                mobygames.platform = "Entex Adventure Vision"
+                break
+            case "epoch-super-cassette-vision":
+                mobygames.platform = "Epoch Super Casette Vision"
+                break
+            case "channel-f":
+                mobygames.platform = "Fairchild Channel F"
+                break
+            case "super-acan":
+                mobygames.platform = "Funtech Super Acan"
+                break
+            case "gp32":
+                mobygames.platform = "GamePark GP32"
+                break
+            case "vectrex":
+                mobygames.platform = "General Computer Vectrex"
+                break
+            case "dvd-player":
+            case "hd-dvd-player":
+                mobygames.platform = "Interactive DVD"
+                break
+            // Hartung Game Master not in mobygames
+            case "odyssey":
+                mobygames.platform = "Magnavox-Phillips Odyssey"
+                break
+            case "memotech-mtx":
+                mobygames.platform = "Memotech MTX"
+                break
+            case "sam-coupe":
+                mobygames.platform = "Miles Gordon Sam Coupe"
+                break
+            case "oculus-quest":
+                mobygames.platform =  "Oculus Quest"
+                break
+            case "videopac-g7400":
+                mobygames.platform = "Philips Videopac+"
+                break
+            case "cd-i":
+                mobygames.platform = "Philips CD-i"
+                break
+            case "rca-studio-ii":
+                mobygames.platform = "RCA Studio II"
+                break
+            case "sharp-x1":
+                mobygames.platform = "Sharp X1"
+                break
+            case "sharp-x68000":
+                mobygames.platform = "Sharp X68000"
+                break
+            case "neo-geo-pocket":
+                mobygames.platform = "SNK Neo Geo Pocket"
+                break
+            case "oric":
+                mobygames.platform = "Tangerine Oric"
+                break
+            case "thomson-mo":
+                mobygames.platform = "Thomson MO5"
+                break
+            case "supervision":
+                mobygames.platform = "Watara Supervision"
+                break
             default:
                 mobygames.platform = "Retro - Other";
                 break;

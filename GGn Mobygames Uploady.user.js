@@ -42,6 +42,8 @@ function html2bb(str) {
     str = str.replace(/< *\/ *b *>/g, "[/b]");
     str = str.replace(/< *a [^>]*>/g, "");
     str = str.replace(/< *\/ *a *>/g, "");
+    str = str.replace(/< *cite *>/, "[i]")
+    str = str.replace(/< *\/cite *>/, "[/i]")
     //Yeah, all these damn stars. Because people put spaces where they shouldn't.
     return str;
 }
@@ -260,7 +262,7 @@ function validate(platformSlug){
             throw err;
         });
 
-        mobygames.description = html2bb($("#description-text").html().replace(/[\n]*/g, "").replace(/.*<h2>Description<\/h2>/g, "").replace(/<div.*/g, "").replace(/< *br *>/g, "\n"));//YOU SHOULD NOT DO THIS AT HOME
+        mobygames.description = "[align=center][b][u]About the game[/u][/b][/align]\n" + html2bb($("#description-text").html().replace(/[\n]*/g, "").replace(/.*<h2>Description<\/h2>/g, "").replace(/<div.*/g, "").replace(/< *br *>/g, "\n"));//YOU SHOULD NOT DO THIS AT HOME
 
         var alternate_titles = [];
         $(".text-sm.text-normal.text-muted:contains('aka')").find("span u").each( function() {
